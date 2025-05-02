@@ -17,6 +17,13 @@ except Exception as e:
     print(f"Erro ao carregar CSV: {e}")
     df = pd.DataFrame()
 
+
+@app.get("/")
+def raiz():
+    return {"status": "ok", "mensagem": "API do agente IA ativa"}
+
+
+
 @app.get("/multas-ibama")
 def consultar_multas(cpf_cnpj: str = Query(..., alias="cpf_cnpj")):
     if df.empty:
