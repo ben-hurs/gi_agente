@@ -1,0 +1,7 @@
+# Ignorar a pasta venv
+venv/
+
+# Ignorar a pasta pgfn dentro de dados
+dados/pgfn/
+
+dados/pgfn.parquet
