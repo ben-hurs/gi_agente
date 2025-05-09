@@ -35,6 +35,19 @@ except Exception as e:
     print(f"Erro ao carregar CSV IBAMA: {e}")
     df_ibama = pd.DataFrame()
 
+# === Carregar o CSV do MPT ===
+CSV_MPT_PATH = os.path.join("dados", "mpt.csv")
+try:
+    df_mpt = pd.read_csv(CSV_MPT_PATH, sep=",", encoding="utf-8", dtype=str, on_bad_lines='skip')
+    df_mpt.columns = df_mpt.columns.str.strip()
+    df_mpt.fillna("", inplace=True)
+except Exception as e:
+    print(f"Erro ao carregar CSV MPT: {e}")
+    df_mpt = pd.DataFrame()
+
+
+
+
 # === Endpoints ===
 
 @app.get("/")
@@ -65,5 +78,18 @@ def consultar_dividas_pgfn(cpf_cnpj: str = Query(..., alias="cpf_cnpj")):
 
     if resultados.empty:
         return JSONResponse(status_code=404, content={"mensagem": "Nenhuma dívida encontrada para o CPF/CNPJ informado."})
+
+    return resultados.to_dict(orient="records")
+
+# === Endpoint do MPT ===
+@app.get("/procedimentos-mpt")
+def consultar_mpt(nome: str = Query(..., alias="nome")):
+    if df_mpt.empty:
+        return JSONResponse(status_code=500, content={"erro": "Base de dados do MPT não carregada."})
+
+    resultados = df_mpt[df_mpt["Investigado"].str.contains(nome, case=False, na=False)]
+
+    if resultados.empty:
+        return JSONResponse(status_code=404, content={"mensagem": "Nenhum procedimento encontrado para o nome informado."})
 
     return resultados.to_dict(orient="records")
